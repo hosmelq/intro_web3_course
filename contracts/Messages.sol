@@ -31,8 +31,8 @@ contract Messages {
 
   function create(string memory _message) public {
     require(
-      _lastMessageAt[msg.sender] + 15 minutes < block.timestamp,
-      'Wait 15m'
+      _lastMessageAt[msg.sender] + 30 seconds < block.timestamp,
+      'Must wait 30 seconds before sending a message again.'
     );
 
     _lastMessageAt[msg.sender] = block.timestamp;
