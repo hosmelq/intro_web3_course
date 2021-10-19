@@ -3,7 +3,9 @@ const hre = require('hardhat')
 async function main() {
   const [owner, randomPerson] = await hre.ethers.getSigners()
   const contractFactory = await hre.ethers.getContractFactory('Messages')
-  const contract = await contractFactory.deploy()
+  const contract = await contractFactory.deploy({
+    value: hre.ethers.utils.parseEther('0.1'),
+  })
 
   await contract.deployed()
 
@@ -11,25 +13,28 @@ async function main() {
   console.log('Contract deployed by:', owner.address)
 
   console.log()
+  let contractBalance = await hre.ethers.provider.getBalance(contract.address)
+  console.log(
+    'Contract balance:',
+    hre.ethers.utils.formatEther(contractBalance)
+  )
 
   let waveTxn
 
   waveTxn = await contract.connect(randomPerson).create('Message 1.')
   await waveTxn.wait()
 
-  waveTxn = await contract.reply(0, 'Reply 1.')
+  waveTxn = await contract.connect(randomPerson).create('Message 1.')
   await waveTxn.wait()
 
-  waveTxn = await contract.connect(randomPerson).reply(0, 'Reply 2.')
-  await waveTxn.wait()
+  contractBalance = await hre.ethers.provider.getBalance(contract.address)
+  console.log(
+    'Contract balance:',
+    hre.ethers.utils.formatEther(contractBalance)
+  )
 
   const messages = await contract.all()
-  console.log()
-  console.log(messages)
-  console.log()
-  console.log()
-  console.log(messages[0])
-  console.log(messages[0].timestamp.toNumber())
+  console.log(`messages: `, messages)
 }
 
 async function runMain() {
